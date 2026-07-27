@@ -8,6 +8,7 @@ Run a full multi-node stack on a single host using Docker Compose. This simulate
 |---------|------|-------------|
 | Gateway | `:8080` | HTTP/WebSocket reverse proxy |
 | Scheduler | `:9090` | gRPC node selection and sandbox binding |
+| Web UI | `:3000` | Control-plane console (Next.js) |
 | agentenv-a | `:8001` | AgentENV runtime node A |
 | agentenv-b | `:8002` | AgentENV runtime node B |
 
@@ -56,6 +57,8 @@ curl http://127.0.0.1:8080/nodes
 # Direct health check on a backend node
 curl http://127.0.0.1:8001/health
 ```
+
+Open the Web UI at [http://127.0.0.1:3000](http://127.0.0.1:3000) and configure Settings with Gateway URL `http://127.0.0.1:8080`. See [Web UI](../getting-started/web-ui.md).
 
 ## Management Commands
 
