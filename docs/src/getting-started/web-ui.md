@@ -28,7 +28,27 @@ Open [http://localhost:3000](http://localhost:3000). In **Settings**, set:
 | API key | any non-empty key in local/dev auth modes | same |
 | Admin token | optional | optional |
 
-Credentials are stored in httpOnly session cookies and cleared on logout.
+Credentials are stored in httpOnly session cookies. They are cleared on logout
+and, because the cookies carry no expiry, when the browser session ends.
+
+The Gateway URL is resolved by the Next.js server, not by your browser, so it
+only has to be reachable from wherever `pnpm dev` runs. `AENV_DEFAULT_GATEWAY_URL`
+pre-fills this field.
+
+### Reaching a dev server from another machine
+
+`next dev` blocks its hot-reload WebSocket for unrecognised browser origins, and
+without that connection the page never becomes interactive — forms render but
+ignore input. `localhost` and `127.0.0.1` work out of the box. For anything else
+(a LAN address, a remote dev host, or an SSH/Brev tunnel published on a local
+port other than 3000), list the origin:
+
+```bash
+AENV_WEB_DEV_ORIGINS="10.0.0.5,dev.example.com" pnpm dev
+```
+
+Production builds have no hot-reload channel, so Compose and Kubernetes
+deployments are unaffected.
 
 ## Docker Compose
 

@@ -42,7 +42,6 @@ import {
   formatCpu,
   formatMemoryMB,
   formatRelative,
-  formatTimestamp,
   shortId,
 } from "@/components/sandboxes/format";
 import { useNow } from "@/components/sandboxes/use-now";
@@ -386,13 +385,13 @@ export function SandboxList({
                   </TableCell>
                   <TableCell
                     className="text-xs text-muted-foreground"
-                    title={formatTimestamp(sandbox.startedAt)}
+                    title={sandbox.startedAt}
                   >
                     {now === null ? "…" : formatRelative(sandbox.startedAt, now)}
                   </TableCell>
                   <TableCell
                     className="text-xs"
-                    title={formatTimestamp(sandbox.endAt)}
+                    title={sandbox.endAt}
                   >
                     <ExpiryBadge endAt={sandbox.endAt} now={now} />
                   </TableCell>

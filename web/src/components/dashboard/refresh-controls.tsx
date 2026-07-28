@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { LocalTime } from "@/components/dashboard/local-time";
+import { LocalTime } from "@/components/local-time";
 
 const AUTO_REFRESH_MS = 15_000;
 
@@ -81,7 +81,8 @@ export function RefreshControls({
   return (
     <div className={cn("flex flex-wrap items-center gap-3", className)}>
       <span className="text-xs text-muted-foreground">
-        Updated <LocalTime value={fetchedAt} dateStyle="short" />
+        {/* A refresh stamp is about the time of day; the date is in `title`. */}
+        Updated <LocalTime value={fetchedAt} timeStyle="medium" />
       </span>
       <div className="flex items-center gap-2">
         <Switch

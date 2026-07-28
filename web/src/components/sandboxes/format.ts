@@ -3,24 +3,6 @@
 /** Sandboxes within this window of their expiration are surfaced as at-risk. */
 export const EXPIRING_SOON_MS = 5 * 60 * 1000;
 
-export function formatTimestamp(iso: string | undefined): string {
-  if (!iso) {
-    return "—";
-  }
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return iso;
-  }
-  return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
 export function formatDuration(ms: number): string {
   const totalSeconds = Math.floor(Math.abs(ms) / 1000);
   const days = Math.floor(totalSeconds / 86_400);

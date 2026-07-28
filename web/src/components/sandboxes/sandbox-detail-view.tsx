@@ -43,9 +43,9 @@ import {
   formatCpu,
   formatMemoryMB,
   formatRelative,
-  formatTimestamp,
   parseJsonObject,
 } from "@/components/sandboxes/format";
+import { LocalTime } from "@/components/local-time";
 import { useNow } from "@/components/sandboxes/use-now";
 import type { CustomExtensionParams, SandboxDetail } from "@/lib/api/sandboxes";
 
@@ -377,16 +377,11 @@ export function SandboxDetailView({
               <BoolBadge value={sandbox.lifecycle?.autoResume} />
             </DetailRow>
             <DetailRow label="Started">
-              <span title={formatTimestamp(sandbox.startedAt)}>
-                {formatTimestamp(sandbox.startedAt)}
-              </span>
+              <LocalTime value={sandbox.startedAt} />
             </DetailRow>
             <DetailRow label="Expires">
-              <span
-                className="inline-flex items-center gap-2"
-                title={formatTimestamp(sandbox.endAt)}
-              >
-                {formatTimestamp(sandbox.endAt)}
+              <span className="inline-flex items-center gap-2">
+                <LocalTime value={sandbox.endAt} />
                 <ExpiryBadge endAt={sandbox.endAt} now={now} />
               </span>
             </DetailRow>

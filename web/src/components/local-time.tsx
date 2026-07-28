@@ -35,11 +35,12 @@ function useIsHydrated(): boolean {
 export function LocalTime({
   value,
   className,
-  dateStyle = "medium",
-  timeStyle = "medium",
+  dateStyle,
+  timeStyle,
 }: {
   value?: string;
   className?: string;
+  /** Omit both for a full date and time; pass one alone to show only that part. */
   dateStyle?: Intl.DateTimeFormatOptions["dateStyle"];
   timeStyle?: Intl.DateTimeFormatOptions["timeStyle"];
 }) {
@@ -50,8 +51,16 @@ export function LocalTime({
     return <span className={cn("text-muted-foreground", className)}>—</span>;
   }
 
+  // Defaults are resolved here rather than as default parameters, so that
+  // passing `dateStyle` alone really does mean "date only" instead of silently
+  // falling back to the default time style.
+  const options: Intl.DateTimeFormatOptions =
+    dateStyle === undefined && timeStyle === undefined
+      ? { dateStyle: "medium", timeStyle: "medium" }
+      : { dateStyle, timeStyle };
+
   const text = hydrated
-    ? new Intl.DateTimeFormat(undefined, { dateStyle, timeStyle }).format(date)
+    ? new Intl.DateTimeFormat(undefined, options).format(date)
     : (value ?? "—");
 
   return (

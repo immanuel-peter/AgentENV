@@ -56,7 +56,7 @@ async function checkHealth(): Promise<GatewayHealth> {
 
 async function listSandboxes(): Promise<SandboxInfo[]> {
   const sandboxes = await gatewayFetch<SandboxInfo[]>(
-    `/v2/sandboxes?state=running,paused&limit=${LIST_LIMIT}`,
+    `/v2/sandboxes?state=running&state=paused&limit=${LIST_LIMIT}`,
   );
   return Array.isArray(sandboxes) ? sandboxes : [];
 }

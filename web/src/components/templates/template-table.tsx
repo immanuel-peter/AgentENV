@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRightIcon, LayersIcon, PlayIcon, SearchIcon } from "lucide-react";
+import {
+  ArrowUpRightIcon,
+  LayersIcon,
+  PlayIcon,
+  SearchIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,12 +36,8 @@ import {
   templateNames,
   type ListedTemplate,
 } from "@/lib/api/templates";
-import {
-  formatCpu,
-  formatMiB,
-  formatNumber,
-  formatTimestamp,
-} from "@/lib/format";
+import { formatCpu, formatMiB, formatNumber } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 
 const STATUS_FILTERS: Record<string, string> = {
   all: "All statuses",
@@ -121,7 +122,9 @@ export function TemplateTable({ templates }: { templates: ListedTemplate[] }) {
           </div>
 
           <div className="grid gap-1.5">
-            <Label className="text-xs text-muted-foreground">Build status</Label>
+            <Label className="text-xs text-muted-foreground">
+              Build status
+            </Label>
             <Select
               items={STATUS_FILTERS}
               value={status}
@@ -239,10 +242,18 @@ export function TemplateTable({ templates }: { templates: ListedTemplate[] }) {
                       {formatNumber(template.spawnCount)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatTimestamp(template.lastSpawnedAt)}
+                      <LocalTime
+                        value={template.lastSpawnedAt ?? undefined}
+                        dateStyle="short"
+                        timeStyle="short"
+                      />
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatTimestamp(template.updatedAt)}
+                      <LocalTime
+                        value={template.updatedAt}
+                        dateStyle="short"
+                        timeStyle="short"
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">

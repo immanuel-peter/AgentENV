@@ -41,7 +41,7 @@ import type {
 } from "@/lib/api/connection";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_GATEWAY_URL = "http://127.0.0.1:8080";
+const FALLBACK_GATEWAY_URL = "http://127.0.0.1:8080";
 
 const TRANSPORT_ERROR =
   "Could not reach the console server. Is the Next.js app still running?";
@@ -81,14 +81,22 @@ function formatCheckedAt(iso: string): string {
 
 export function ConnectionForm({
   initialSession,
+  defaultGatewayUrl,
 }: {
   initialSession: ConnectionSessionSummary;
+  /** Deployment default from AENV_DEFAULT_GATEWAY_URL, shown as the hint. */
+  defaultGatewayUrl?: string;
 }) {
+  const DEFAULT_GATEWAY_URL = defaultGatewayUrl || FALLBACK_GATEWAY_URL;
   const router = useRouter();
 
   const [session, setSession] = useState(initialSession);
   const [probe, setProbe] = useState<ConnectionProbe | null>(null);
-  const [gatewayUrl, setGatewayUrl] = useState(initialSession.gatewayUrl ?? "");
+  // With no stored session, start from the deployment default so Compose and
+  // Kubernetes users only have to supply credentials.
+  const [gatewayUrl, setGatewayUrl] = useState(
+    initialSession.gatewayUrl ?? defaultGatewayUrl ?? "",
+  );
   const [apiKey, setApiKey] = useState("");
   const [adminToken, setAdminToken] = useState("");
   const [revealApiKey, setRevealApiKey] = useState(false);

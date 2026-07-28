@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/table";
 import { CopyButton } from "@/components/sandboxes/copy-button";
 import { snapshotAliases, snapshotId } from "@/lib/api/snapshots";
-import { formatCpu, formatMiB, formatTimestamp } from "@/lib/format";
+import { formatCpu, formatMiB } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 import type { SnapshotInfo } from "@/lib/api/types";
 
 export function SnapshotTable({
@@ -77,10 +78,18 @@ export function SnapshotTable({
                   : ""}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {formatTimestamp(snapshot.createdAt)}
+                <LocalTime
+                  value={snapshot.createdAt}
+                  dateStyle="short"
+                  timeStyle="short"
+                />
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {formatTimestamp(snapshot.updatedAt)}
+                <LocalTime
+                  value={snapshot.updatedAt}
+                  dateStyle="short"
+                  timeStyle="short"
+                />
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">

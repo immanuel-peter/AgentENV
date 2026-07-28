@@ -159,8 +159,11 @@ export async function listSandboxes(
   params: ListSandboxesParams = {},
 ): Promise<ListSandboxesResult> {
   const query = new URLSearchParams();
-  if (params.states?.length) {
-    query.set("state", params.states.join(","));
+  // The server decodes `state` as a repeated query parameter
+  // (`state=running&state=paused`) and rejects the comma-joined form with a
+  // 400, despite `explode: false` in src/api/openapi.yml.
+  for (const state of params.states ?? []) {
+    query.append("state", state);
   }
   if (params.metadata) {
     const encoded = encodeMetadataFilter(params.metadata);

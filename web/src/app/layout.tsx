@@ -31,7 +31,16 @@ export default function RootLayout({
       lang="en"
       className={`${sans.variable} ${mono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">
+      {/*
+        Extensions such as Grammarly and password managers add attributes to
+        <body> before React hydrates, which React reports as a mismatch. Only
+        this element's own attributes are exempted; children still hydrate
+        normally and real mismatches inside the tree are still reported.
+      */}
+      <body
+        className="min-h-full bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

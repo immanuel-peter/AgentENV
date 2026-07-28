@@ -25,25 +25,7 @@ export function formatNumber(value?: number): string {
   return value.toLocaleString("en-US");
 }
 
-/** Stable UTC rendering so server and client markup always agree. */
-export function formatTimestamp(value?: string | null): string {
-  if (!value) {
-    return "—";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return `${date.toISOString().slice(0, 19).replace("T", " ")} UTC`;
-}
-
-export function formatTime(value?: string | null): string {
-  if (!value) {
-    return "";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toISOString().slice(11, 23);
-}
+// Timestamps are rendered by `@/components/local-time`, which formats in the
+// viewer's locale after hydration and keeps the original ISO value reachable
+// through `title`/`dateTime`. Do not reintroduce a string formatter here:
+// locale formatting during SSR would not match the client pass.

@@ -38,13 +38,16 @@ export async function getConnectionSession(): Promise<ConnectionSession | null> 
   };
 }
 
-export function sessionCookieOptions(maxAgeSeconds = 60 * 60 * 12) {
+/**
+ * Session cookies: no `maxAge`/`expires`, so the browser drops them when it
+ * closes. Credentials must not outlive the browser session (issue #6).
+ */
+export function sessionCookieOptions() {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: maxAgeSeconds,
   };
 }
 

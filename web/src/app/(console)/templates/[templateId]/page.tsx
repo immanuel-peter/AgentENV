@@ -31,12 +31,8 @@ import {
   templateNames,
   type TemplateWithBuilds,
 } from "@/lib/api/templates";
-import {
-  formatCpu,
-  formatMiB,
-  formatNumber,
-  formatTimestamp,
-} from "@/lib/format";
+import { formatCpu, formatMiB, formatNumber } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 
 type TemplateDetailParams = { templateId: string };
 type TemplateDetailSearch = { build?: string };
@@ -197,7 +193,7 @@ export default async function TemplateDetailPage({
               <Field label="Builds">{formatNumber(builds.length)}</Field>
               <Field label="Spawns">{formatNumber(template.spawnCount)}</Field>
               <Field label="Last spawned">
-                {formatTimestamp(template.lastSpawnedAt)}
+                <LocalTime value={template.lastSpawnedAt ?? undefined} />
               </Field>
             </dl>
           </CardContent>
@@ -210,10 +206,10 @@ export default async function TemplateDetailPage({
           <CardContent>
             <dl className="grid gap-3 sm:grid-cols-2">
               <Field label="Created">
-                {formatTimestamp(template.createdAt)}
+                <LocalTime value={template.createdAt} />
               </Field>
               <Field label="Updated">
-                {formatTimestamp(template.updatedAt)}
+                <LocalTime value={template.updatedAt} />
               </Field>
             </dl>
           </CardContent>
@@ -268,10 +264,10 @@ export default async function TemplateDetailPage({
                     {build.envdVersion ?? "—"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {formatTimestamp(build.createdAt)}
+                    <LocalTime value={build.createdAt} />
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {formatTimestamp(build.finishedAt)}
+                    <LocalTime value={build.finishedAt} />
                   </TableCell>
                   <TableCell className="text-right">
                     <Button

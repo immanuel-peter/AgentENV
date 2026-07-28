@@ -19,7 +19,8 @@ import {
   snapshotId,
   snapshotSourceSandboxId,
 } from "@/lib/api/snapshots";
-import { formatCpu, formatMiB, formatTimestamp } from "@/lib/format";
+import { formatCpu, formatMiB } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 import type { SnapshotInfo } from "@/lib/api/types";
 
 type SnapshotDetailParams = { snapshotId: string };
@@ -180,10 +181,10 @@ export default async function SnapshotDetailPage({
           <CardContent>
             <dl className="grid gap-3 sm:grid-cols-2">
               <Field label="Created">
-                {formatTimestamp(snapshot.createdAt)}
+                <LocalTime value={snapshot.createdAt} />
               </Field>
               <Field label="Updated">
-                {formatTimestamp(snapshot.updatedAt)}
+                <LocalTime value={snapshot.updatedAt} />
               </Field>
             </dl>
           </CardContent>

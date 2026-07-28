@@ -87,16 +87,23 @@ export function SandboxSourceLink({
     return <span className="text-muted-foreground">—</span>;
   }
 
+  // Cold-start sandboxes carry a full digest reference (70+ chars). Left
+  // unbounded it widens the row past the viewport and pushes the trailing
+  // columns and the actions menu out of view, so clamp it and keep the full
+  // value in `title`.
   return (
-    <div className="flex flex-col">
+    <div className="flex max-w-[18rem] flex-col">
       <Link
         href={`/templates?highlight=${encodeURIComponent(templateID)}`}
-        className="font-mono text-xs hover:underline"
+        title={templateID}
+        className="truncate font-mono text-xs hover:underline"
       >
         {templateID}
       </Link>
       {alias ? (
-        <span className="text-xs text-muted-foreground">{alias}</span>
+        <span className="truncate text-xs text-muted-foreground" title={alias}>
+          {alias}
+        </span>
       ) : null}
     </div>
   );

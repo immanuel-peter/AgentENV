@@ -19,7 +19,10 @@ export default async function SettingsPage() {
           should use for this browser session.
         </p>
       </div>
-      <ConnectionForm initialSession={session} />
+      <ConnectionForm
+        initialSession={session}
+        defaultGatewayUrl={process.env.AENV_DEFAULT_GATEWAY_URL}
+      />
     </div>
   );
 }

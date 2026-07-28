@@ -29,7 +29,7 @@ import {
   formatMegabytes,
   truncateId,
 } from "@/components/dashboard/format";
-import { LocalTime, RelativeTime } from "@/components/dashboard/local-time";
+import { LocalTime, RelativeTime } from "@/components/local-time";
 import {
   EmptyState,
   PanelNotice,
@@ -144,26 +144,34 @@ function SandboxTable({
     return <EmptyState>{emptyMessage}</EmptyState>;
   }
 
+  // These panels sit in a narrow dashboard column, and a cold-start template is
+  // a full digest reference. A fixed layout makes every column a share of the
+  // card instead of letting content dictate width, so the template ellipsises
+  // rather than pushing State and the time column behind a horizontal scroll.
+  // Full values stay reachable through `title`.
   return (
-    <Table>
+    <Table className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead>Sandbox</TableHead>
-          <TableHead>Template</TableHead>
-          <TableHead>State</TableHead>
-          <TableHead className="text-right">{timeColumn}</TableHead>
+          <TableHead className="w-[27%]">Sandbox</TableHead>
+          <TableHead className="w-[25%]">Template</TableHead>
+          <TableHead className="w-[23%]">State</TableHead>
+          <TableHead className="w-[25%] text-right">{timeColumn}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {sandboxes.map((sandbox) => (
           <TableRow key={sandbox.sandboxID}>
             <TableCell
-              className="font-mono text-xs"
+              className="truncate font-mono text-xs"
               title={sandbox.sandboxID}
             >
-              {truncateId(sandbox.sandboxID, 14)}
+              {truncateId(sandbox.sandboxID, 10)}
             </TableCell>
-            <TableCell className="text-xs text-muted-foreground">
+            <TableCell
+              className="truncate text-xs text-muted-foreground"
+              title={templateLabelOf(sandbox)}
+            >
               {templateLabelOf(sandbox)}
             </TableCell>
             <TableCell>
@@ -175,6 +183,7 @@ function SandboxTable({
                 <LocalTime
                   value={timeValue(sandbox)}
                   dateStyle="short"
+                  timeStyle={undefined}
                   className="text-muted-foreground"
                 />
               </div>

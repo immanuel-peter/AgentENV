@@ -26,7 +26,7 @@ import {
   type BuildLogEntry,
   type TemplateBuildInfo,
 } from "@/lib/api/templates";
-import { formatTime } from "@/lib/format";
+import { LocalTime } from "@/components/local-time";
 
 const POLL_INTERVAL_MS = 3_000;
 
@@ -55,9 +55,12 @@ function LogLines({ entries }: { entries: BuildLogEntry[] }) {
     <div className="max-h-[28rem] overflow-y-auto rounded-lg bg-muted/40 p-3 font-mono text-xs">
       {entries.map((entry, index) => (
         <div key={`${entry.timestamp ?? index}-${index}`} className="flex gap-2">
-          <span className="shrink-0 text-muted-foreground">
-            {formatTime(entry.timestamp) || "—"}
-          </span>
+          <LocalTime
+            value={entry.timestamp}
+            dateStyle={undefined}
+            timeStyle="medium"
+            className="shrink-0 text-muted-foreground"
+          />
           <span className={`w-12 shrink-0 uppercase ${levelClass(entry.level)}`}>
             {entry.level ?? ""}
           </span>
