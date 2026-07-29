@@ -33,11 +33,12 @@ import {
   ConnectionStatusBadge,
   ProbeCheckRow,
 } from "@/components/settings/connection-status";
-import type {
-  ConnectionApiResponse,
-  ConnectionProbe,
-  ConnectionSessionSummary,
-  ConnectionUpdateRequest,
+import {
+  parseGatewayUrl,
+  type ConnectionApiResponse,
+  type ConnectionProbe,
+  type ConnectionSessionSummary,
+  type ConnectionUpdateRequest,
 } from "@/lib/api/connection";
 import { cn } from "@/lib/utils";
 
@@ -105,7 +106,7 @@ export function ConnectionForm({
 
   const busy = pending !== null;
 
-  /** Blank secret fields mean "keep what is stored", per the route contract. */
+  /** Blank secrets keep stored values only when the Gateway URL is unchanged. */
   const buildUpdate = useCallback(
     (overrides?: Partial<ConnectionUpdateRequest>): ConnectionUpdateRequest => ({
       gatewayUrl: gatewayUrl.trim() || undefined,
@@ -215,8 +216,13 @@ export function ConnectionForm({
     router.refresh();
   }
 
+  const parsedGateway = parseGatewayUrl(gatewayUrl);
+  const destinationChanged =
+    session.configured &&
+    (!parsedGateway.ok || parsedGateway.url !== session.gatewayUrl);
   const canCheckEntered = Boolean(
-    gatewayUrl.trim() && (apiKey.trim() || session.configured),
+    gatewayUrl.trim() &&
+      (apiKey.trim() || (session.configured && !destinationChanged)),
   );
 
   return (
@@ -383,9 +389,11 @@ export function ConnectionForm({
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                {session.apiKeyMasked
+                {session.apiKeyMasked && !destinationChanged
                   ? "Leave blank to keep the stored key."
-                  : "Sent on every Gateway request."}
+                  : destinationChanged && session.configured
+                    ? "Required when changing the Gateway URL."
+                    : "Sent on every Gateway request."}
               </p>
             </div>
 
