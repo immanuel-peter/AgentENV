@@ -233,15 +233,27 @@ export async function resolveConnectionInput(
     return { ok: false, error: parsedUrl.error };
   }
 
-  const apiKey = optionalString(input.apiKey) ?? stored.apiKey;
+  // Blank secrets keep stored values only when the destination is unchanged.
+  const destinationChanged =
+    !stored.gatewayUrl || stored.gatewayUrl !== parsedUrl.url;
+
+  const apiKey =
+    optionalString(input.apiKey) ??
+    (destinationChanged ? undefined : stored.apiKey);
   if (!apiKey) {
-    return { ok: false, error: "API key is required." };
+    return {
+      ok: false,
+      error: destinationChanged
+        ? "API key is required when changing the Gateway URL."
+        : "API key is required.",
+    };
   }
 
   const adminToken =
     input.clearAdminToken === true
       ? undefined
-      : (optionalString(input.adminToken) ?? stored.adminToken);
+      : (optionalString(input.adminToken) ??
+        (destinationChanged ? undefined : stored.adminToken));
 
   return {
     ok: true,
