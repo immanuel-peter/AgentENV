@@ -163,6 +163,62 @@ Run a one-shot command in a sandbox and stream its output.
 aenv exec <sandbox-id> ls -la /
 ```
 
+### `aenv upload <sandbox-id> <local-path> <remote-path>`
+
+Upload a local file or directory to a sandbox through envd. Files are streamed
+individually, and missing remote directories are created automatically.
+
+```bash
+aenv upload <sandbox-id> ./config.json /workspace/config.json
+aenv upload <sandbox-id> ./config.json /workspace/
+aenv upload <sandbox-id> ./project /workspace/
+aenv upload <sandbox-id> ./project /workspace/app
+aenv upload --user app <sandbox-id> ./config.json config.json
+```
+
+| Flag | Description |
+|------|-------------|
+| `--user <user>` | Resolve relative remote file paths as this user and set the uploaded file's owner |
+
+For directory uploads, the remote path must be absolute and `--user` is not
+supported. If the remote destination ends in `/` or already exists as a
+directory, the local directory name is appended. Otherwise the destination is
+used as the new directory root. Hidden files and empty directories are copied;
+symbolic links and special files are rejected.
+
+Upload copies file contents and directory structure only. It does **not**
+preserve host ownership or group, permissions (including executable bits),
+timestamps, ACLs, extended attributes, or hard-link relationships. Destination
+metadata is assigned by envd and the sandbox filesystem.
+
+### `aenv download <sandbox-id> <remote-path> [local-path]`
+
+Download a file or directory from a sandbox through envd.
+
+```bash
+aenv download <sandbox-id> /workspace/result.txt ./result.txt
+aenv download <sandbox-id> /workspace/result.txt
+aenv download <sandbox-id> /workspace/result.txt ./output/
+aenv download <sandbox-id> /workspace/project ./backup/
+aenv download --user app --force <sandbox-id> result.txt ./result.txt
+```
+
+| Flag | Description |
+|------|-------------|
+| `--user <user>` | Resolve relative remote file paths from this user's home directory |
+| `--force` | Replace conflicting local files |
+
+When the local path is omitted, the remote name is used in the current
+directory. When the local path names an existing directory or ends in `/`, the
+remote name is appended automatically. The resulting local parent directory
+must already exist. Directory downloads require an absolute remote path and do
+not support `--user`. Existing directories are merged; unrelated files remain,
+while conflicting files require `--force`. Each file is written through a
+temporary file and moved into place only after that file succeeds. Symbolic
+links and special files are rejected. Downloads do **not** preserve remote
+ownership or group, permissions (including executable bits), timestamps, ACLs,
+extended attributes, or hard-link relationships.
+
 ### `aenv list`
 
 List all sandboxes. Alias: `aenv ls`.
@@ -199,6 +255,8 @@ aenv snapshot create <sandbox-id> --name my-base
 |------|-------------|
 | `--name <name>` | Snapshot name or alias |
 
+When source-registry image publication is enabled on the server, the command also prints the published OverlayBD-native image reference on an `Image:` line; that tag can be used directly as a `userImage`.
+
 ### `aenv snapshot list`
 
 List persistent snapshots. Alias: `aenv snapshot ls`, `aenv snap ls`.
@@ -212,5 +270,7 @@ aenv snapshot list --sandbox-id <sandbox-id>
 |------|-------------|
 | `--sandbox-id <id>` | Filter snapshots by source sandbox ID |
 | `--output <format>` | Output format: `table` (default on TTY) or `json` |
+
+The table output includes an `IMAGE REF` column (`-` when no image was published); JSON output includes the optional `imageRef` field.
 
 To delete a snapshot, use `aenv template delete <snapshot-id>` or `aenv template delete <name>` — snapshots share the same underlying store as templates and are deleted through the same command.

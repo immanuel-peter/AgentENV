@@ -24,7 +24,10 @@ impl SourceRegistryRepository {
         let url = Url::parse(repo_blob_url).map_err(|e| RepositoryError::Unsupported {
             feature: format!("invalid ACR repoBlobUrl '{repo_blob_url}': {e}"),
         })?;
-        if url.scheme() != "https" {
+        let test_loopback_http = cfg!(test)
+            && url.scheme() == "http"
+            && matches!(url.host_str(), Some("127.0.0.1" | "localhost" | "::1"));
+        if url.scheme() != "https" && !test_loopback_http {
             return Err(RepositoryError::Unsupported {
                 feature: format!("ACR repoBlobUrl must use https: {repo_blob_url}"),
             });
@@ -32,7 +35,10 @@ impl SourceRegistryRepository {
         let host = url.host_str().ok_or_else(|| RepositoryError::Unsupported {
             feature: format!("ACR repoBlobUrl is missing registry host: {repo_blob_url}"),
         })?;
+        // Strip the default HTTPS :443 so equivalent source URLs normalize to
+        // one registry; keep every other explicit port intact.
         let registry = match url.port() {
+            Some(443) if url.scheme() == "https" => host.to_string(),
             Some(port) => format!("{host}:{port}"),
             None => host.to_string(),
         };
@@ -41,7 +47,7 @@ impl SourceRegistryRepository {
             .path_segments()
             .map(|segments| segments.collect())
             .unwrap_or_default();
-        if segments.len() < 4
+        if segments.len() < 3
             || segments.first() != Some(&"v2")
             || segments.last() != Some(&"blobs")
         {
@@ -57,7 +63,12 @@ impl SourceRegistryRepository {
                 feature: format!("ACR repoBlobUrl repository is empty: {repo_blob_url}"),
             });
         }
-        let repo_blob_url = format!("https://{}{}", registry, url.path().trim_end_matches('/'));
+        let repo_blob_url = format!(
+            "{}://{}{}",
+            url.scheme(),
+            registry,
+            url.path().trim_end_matches('/')
+        );
 
         Ok(Self {
             registry,
@@ -70,17 +81,28 @@ impl SourceRegistryRepository {
         format!("{}/{}:{tag}", self.registry, self.repository)
     }
 
+    fn registry_api_url(&self) -> String {
+        let scheme = self
+            .repo_blob_url
+            .split_once("://")
+            .map(|(scheme, _)| scheme)
+            .unwrap_or("https");
+        format!("{scheme}://{}", self.registry)
+    }
+
     pub(crate) fn upload_url(&self) -> String {
         format!(
-            "https://{}/v2/{}/blobs/uploads/",
-            self.registry, self.repository
+            "{}/v2/{}/blobs/uploads/",
+            self.registry_api_url(),
+            self.repository
         )
     }
 
     pub(crate) fn manifest_url(&self, tag: &str) -> String {
         format!(
-            "https://{}/v2/{}/manifests/{tag}",
-            self.registry, self.repository
+            "{}/v2/{}/manifests/{tag}",
+            self.registry_api_url(),
+            self.repository
         )
     }
 }

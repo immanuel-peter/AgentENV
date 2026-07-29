@@ -27,6 +27,65 @@ Recoverable failures leave the sandbox running and surface the error to the
 caller. Terminal failures — where the runtime was mutated past safe resume —
 tear down the sandbox.
 
+## OverlayBD Image Publication
+
+When the snapshot repository backend is `oss` and `[snapshot.image_publish]` is
+enabled, publishing a snapshot also writes its rootfs back to the original
+OverlayBD-native OCI registry as an image tag:
+
+```text
+Created snapshot 018f0d93-aaaa-bbbb-cccc-0123456789ab
+Image: registry.example.com/team/app:agentenv-snapshot-018f0d93-aaaa-bbbb-cccc-0123456789ab
+```
+
+The tag lives in the same registry and repository as the source image.
+Publication is incremental: layers already present in that repository (the
+base image and previously published snapshot deltas) are referenced by digest
+and never re-uploaded; only new runtime delta layers are pushed. The result is
+an OverlayBD-native OCI image that can be used directly as a `userImage` to
+cold boot new sandboxes.
+
+Notes:
+
+- The image contains only the root filesystem. Memory state and `vm_state.bin`
+  remain in the snapshot repository, so resuming with full memory state still
+  requires starting from the snapshot itself.
+- The published reference is returned as `imageRef` in snapshot create/GET/list
+  API responses and shown by `aenv snapshot create` and `aenv snapshot list`.
+- Snapshots created from non-OverlayBD-native source images, or created while
+  publication is disabled, do not produce an `imageRef`.
+- AgentENV never overwrites an existing generated snapshot tag. Registry
+  administrators can still move or replace tags through external tooling.
+- Deleting a snapshot also attempts to delete its published manifest from the
+  registry.
+
+## Export a Snapshot Rootfs as a Standalone OCI Image
+
+`aenv-snapshot-image` (build with `make build-snapshot-image`; not part of the
+server binary, Docker image, or install packages) publishes a committed
+snapshot's rootfs — never attached drives or memory — as an OverlayBD-native
+OCI image and prints the image reference on stdout (logs go to stderr):
+
+```bash
+aenv-snapshot-image <snapshot-id-or-alias> \
+  [--target-repository registry.example.com/team/app] [--tag release-1]
+```
+
+It reads the server config (`AENV_CONFIG_PATH` or `--config`) for the
+`posix_fs`/`oss` snapshot repository and does all registry I/O through
+`regctl` (`docker login` provides credentials). An explicit
+`--target-repository` defaults to the `latest` tag. When the target is omitted,
+the tool resolves the original repository from the snapshot's rootfs
+publication metadata, or from its unique external source, and defaults to
+`snapshot-<snapshot-id>`. Persisted publication metadata is never treated as
+registry truth: every invocation checks the target manifest. Publishing is
+idempotent through the manifest digest, pre-existing conflicting references
+are refused, and blobs already present at the target are skipped. The conflict
+check is not atomic against concurrent tag writers. The tool records no new
+publication state. If the selected reference is already recorded as a
+snapshot-managed publication, the tool warns that it may be deleted with the
+snapshot; other exported references live independently of snapshot deletion.
+
 ## Manage Snapshots
 
 ### List Snapshots
