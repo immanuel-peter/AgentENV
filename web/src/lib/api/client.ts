@@ -46,6 +46,8 @@ export async function gatewayFetch<T = unknown>(
       headers,
       signal: init.signal ?? controller.signal,
       cache: "no-store",
+      // Avoid leaking auth headers across redirect hops.
+      redirect: "manual",
     });
 
     init.onResponse?.(res);

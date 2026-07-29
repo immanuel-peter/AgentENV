@@ -15,51 +15,78 @@ import {
   summarizeConnectionSession,
 } from "@/lib/session";
 
-export async function GET() {
+async function errorResponse(
+  status: number,
+  message: string,
+): Promise<NextResponse<ConnectionApiResponse>> {
   const payload: ConnectionApiResponse = {
     session: await getConnectionSessionSummary(),
     probe: null,
+    error: message,
   };
-  return NextResponse.json(payload);
+  return NextResponse.json(payload, { status });
 }
 
-export async function POST(request: Request) {
-  const resolved = await resolveConnectionInput(request);
-  if (!resolved.ok) {
+export async function GET() {
+  try {
     const payload: ConnectionApiResponse = {
       session: await getConnectionSessionSummary(),
       probe: null,
-      error: resolved.error,
     };
-    return NextResponse.json(payload, { status: 400 });
+    return NextResponse.json(payload);
+  } catch (error) {
+    console.error("connection GET failed", error);
+    return errorResponse(500, "Could not read the connection session.");
   }
+}
 
-  const probe = await probeConnection(resolved.credentials);
+export async function POST(request: Request) {
+  try {
+    const resolved = await resolveConnectionInput(request);
+    if (!resolved.ok) {
+      const payload: ConnectionApiResponse = {
+        session: await getConnectionSessionSummary(),
+        probe: null,
+        error: resolved.error,
+      };
+      return NextResponse.json(payload, { status: 400 });
+    }
 
-  if (probe.status === "disconnected" && !resolved.force) {
+    const probe = await probeConnection(resolved.credentials);
+
+    if (probe.status === "disconnected" && !resolved.force) {
+      const payload: ConnectionApiResponse = {
+        session: await getConnectionSessionSummary(),
+        probe,
+        error: probe.summary,
+      };
+      return NextResponse.json(payload, { status: 400 });
+    }
+
+    await setConnectionSession(resolved.credentials);
+
     const payload: ConnectionApiResponse = {
-      session: await getConnectionSessionSummary(),
+      session: summarizeConnectionSession(resolved.credentials),
       probe,
-      error: probe.summary,
     };
-    return NextResponse.json(payload, { status: 400 });
+    return NextResponse.json(payload);
+  } catch (error) {
+    console.error("connection POST failed", error);
+    return errorResponse(500, "Could not save the connection session.");
   }
-
-  await setConnectionSession(resolved.credentials);
-
-  const payload: ConnectionApiResponse = {
-    session: summarizeConnectionSession(resolved.credentials),
-    probe,
-  };
-  return NextResponse.json(payload);
 }
 
 export async function DELETE() {
-  await clearConnectionSession();
+  try {
+    await clearConnectionSession();
 
-  const payload: ConnectionApiResponse = {
-    session: EMPTY_SESSION_SUMMARY,
-    probe: null,
-  };
-  return NextResponse.json(payload);
+    const payload: ConnectionApiResponse = {
+      session: EMPTY_SESSION_SUMMARY,
+      probe: null,
+    };
+    return NextResponse.json(payload);
+  } catch (error) {
+    console.error("connection DELETE failed", error);
+    return errorResponse(500, "Could not clear the connection session.");
+  }
 }
