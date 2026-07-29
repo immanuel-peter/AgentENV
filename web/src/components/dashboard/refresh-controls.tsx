@@ -81,7 +81,6 @@ export function RefreshControls({
   return (
     <div className={cn("flex flex-wrap items-center gap-3", className)}>
       <span className="text-xs text-muted-foreground">
-        {/* A refresh stamp is about the time of day; the date is in `title`. */}
         Updated <LocalTime value={fetchedAt} timeStyle="medium" />
       </span>
       <div className="flex items-center gap-2">

@@ -1,12 +1,3 @@
-/**
- * Server-only helpers behind the /api/connection route handlers: connectivity
- * probing against the Gateway and merging a partial settings update over the
- * credentials already held in cookies.
- *
- * Server-only: it reads cookies through `@/lib/session`, which pulls in
- * `next/headers`.
- */
-
 import {
   deriveConnectionStatus,
   parseGatewayUrl,
@@ -36,7 +27,6 @@ const CONNECT_ERROR_HINT: Record<string, string> = {
     "The Gateway's TLS certificate could not be verified.",
 };
 
-/** `fetch` buries the useful code under `cause`, sometimes inside an AggregateError. */
 function findErrorCode(error: unknown, depth = 0): string | undefined {
   if (!error || typeof error !== "object" || depth > 3) {
     return undefined;
@@ -62,7 +52,6 @@ function describeFetchError(error: unknown): string {
   if (code) {
     return CONNECT_ERROR_HINT[code] ?? `Request failed (${code}).`;
   }
-  // Undici reports every transport failure as a bare "fetch failed".
   if (error instanceof Error && error.message !== "fetch failed") {
     return error.message;
   }
@@ -147,11 +136,6 @@ async function runCheck(
   }
 }
 
-/**
- * Probes the three endpoints the console depends on. `/nodes` is only tried
- * when an admin token is present; otherwise it is reported as skipped so the
- * caller can surface "unavailable due to permissions" instead of a failure.
- */
 export async function probeConnection(
   credentials: ConnectionSession,
 ): Promise<ConnectionProbe> {
@@ -223,10 +207,6 @@ function optionalString(value: unknown): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-/**
- * Merges the request body over the stored cookies. Blank secret fields keep
- * the existing value so the form never needs to echo a secret back.
- */
 export async function resolveConnectionInput(
   request: Request,
 ): Promise<ResolvedConnectionInput> {

@@ -2,15 +2,11 @@ import { getConnectionSession } from "@/lib/session";
 import { ApiError } from "@/lib/api/errors";
 
 export type GatewayRequestInit = RequestInit & {
-  /** When true, send X-Admin-Token if present. */
   admin?: boolean;
-  /** Override session gateway URL (used during connection validation). */
   gatewayUrl?: string;
   apiKey?: string;
   adminToken?: string;
-  /** Fetch timeout in ms (default 30s; use higher for create/build). */
   timeoutMs?: number;
-  /** Observe the raw response (e.g. to read pagination headers) before parsing. */
   onResponse?: (response: Response) => void;
 };
 

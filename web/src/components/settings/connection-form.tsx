@@ -84,7 +84,6 @@ export function ConnectionForm({
   defaultGatewayUrl,
 }: {
   initialSession: ConnectionSessionSummary;
-  /** Deployment default from AENV_DEFAULT_GATEWAY_URL, shown as the hint. */
   defaultGatewayUrl?: string;
 }) {
   const DEFAULT_GATEWAY_URL = defaultGatewayUrl || FALLBACK_GATEWAY_URL;
@@ -92,8 +91,6 @@ export function ConnectionForm({
 
   const [session, setSession] = useState(initialSession);
   const [probe, setProbe] = useState<ConnectionProbe | null>(null);
-  // With no stored session, start from the deployment default so Compose and
-  // Kubernetes users only have to supply credentials.
   const [gatewayUrl, setGatewayUrl] = useState(
     initialSession.gatewayUrl ?? defaultGatewayUrl ?? "",
   );

@@ -14,9 +14,6 @@ export function SandboxStateBadge({
 }) {
   const normalized = state?.toLowerCase();
 
-  // Tinted fills matching BuildStatusBadge, so lifecycle and build state read as
-  // one status language. A solid `default` badge here made every running row
-  // shout louder than the data in it.
   const tone =
     normalized === "running"
       ? {
@@ -44,10 +41,6 @@ export function SandboxStateBadge({
   );
 }
 
-/**
- * Expiry as a countdown. Renders a stable placeholder until `now` is available
- * so server and client markup agree on the first paint.
- */
 export function ExpiryBadge({ endAt, now }: { endAt?: string; now: number | null }) {
   if (!endAt) {
     return <span className="text-muted-foreground">—</span>;
@@ -87,10 +80,6 @@ export function SandboxSourceLink({
     return <span className="text-muted-foreground">—</span>;
   }
 
-  // Cold-start sandboxes carry a full digest reference (70+ chars). Left
-  // unbounded it widens the row past the viewport and pushes the trailing
-  // columns and the actions menu out of view, so clamp it and keep the full
-  // value in `title`.
   return (
     <div className="flex max-w-[18rem] flex-col">
       <Link

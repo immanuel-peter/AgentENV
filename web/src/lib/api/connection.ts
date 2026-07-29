@@ -1,11 +1,3 @@
-/**
- * Isomorphic connection-session types and helpers.
- *
- * Nothing here touches cookies or the network, so it is safe to import from
- * both client components and server code. Raw secrets never leave the server:
- * the client only ever receives the masked forms produced here.
- */
-
 export type ConnectionStatus = "connected" | "partial" | "disconnected";
 
 export type ProbeOutcome = "ok" | "unauthorized" | "failed" | "skipped";
@@ -15,12 +7,10 @@ export type ProbeCheckId = "health" | "sandboxes" | "nodes";
 export type ProbeCheck = {
   id: ProbeCheckId;
   label: string;
-  /** Request path relative to the Gateway base URL, for display. */
   path: string;
   outcome: ProbeOutcome;
   httpStatus?: number;
   durationMs?: number;
-  /** Human-readable result. Secrets are redacted before this is populated. */
   detail: string;
 };
 
@@ -31,7 +21,6 @@ export type ConnectionProbe = {
   checkedAt: string;
 };
 
-/** Client-safe view of the stored session. Secrets are masked. */
 export type ConnectionSessionSummary = {
   configured: boolean;
   gatewayUrl: string | null;
@@ -48,19 +37,11 @@ export const EMPTY_SESSION_SUMMARY: ConnectionSessionSummary = {
   hasAdminToken: false,
 };
 
-/**
- * Request body accepted by the /api/connection route handlers.
- *
- * Omitted or blank secret fields mean "keep whatever is already stored", so
- * the UI never has to round-trip a secret it cannot read.
- */
 export type ConnectionUpdateRequest = {
   gatewayUrl?: string;
   apiKey?: string;
   adminToken?: string;
-  /** Explicitly drop the stored admin token instead of keeping it. */
   clearAdminToken?: boolean;
-  /** Save even when validation reports `disconnected`. */
   force?: boolean;
 };
 
@@ -70,7 +51,6 @@ export type ConnectionApiResponse = {
   error?: string;
 };
 
-/** Renders a secret as bullets plus its last 4 characters. */
 export function maskSecret(secret: string): string {
   const trimmed = secret.trim();
   if (!trimmed) {
@@ -82,7 +62,6 @@ export function maskSecret(secret: string): string {
   return `${"•".repeat(Math.min(8, trimmed.length - 4))}${trimmed.slice(-4)}`;
 }
 
-/** Replaces any occurrence of the given secrets with a placeholder. */
 export function redactSecrets(
   text: string,
   secrets: Array<string | undefined>,
@@ -101,7 +80,6 @@ export type GatewayUrlParse =
   | { ok: true; url: string }
   | { ok: false; error: string };
 
-/** Validates and normalizes a Gateway base URL (scheme + host + base path). */
 export function parseGatewayUrl(raw: string): GatewayUrlParse {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -136,12 +114,6 @@ function findCheck(
   return checks.find((check) => check.id === id);
 }
 
-/**
- * Reduces the individual probes to a single status.
- *
- * `/nodes` needs an admin token, so its absence downgrades to `partial`
- * rather than failing the connection.
- */
 export function deriveConnectionStatus(checks: ProbeCheck[]): ConnectionStatus {
   const health = findCheck(checks, "health");
   const sandboxes = findCheck(checks, "sandboxes");

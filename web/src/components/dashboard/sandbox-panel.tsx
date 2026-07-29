@@ -144,11 +144,6 @@ function SandboxTable({
     return <EmptyState>{emptyMessage}</EmptyState>;
   }
 
-  // These panels sit in a narrow dashboard column, and a cold-start template is
-  // a full digest reference. A fixed layout makes every column a share of the
-  // card instead of letting content dictate width, so the template ellipsises
-  // rather than pushing State and the time column behind a horizontal scroll.
-  // Full values stay reachable through `title`.
   return (
     <Table className="table-fixed">
       <TableHeader>

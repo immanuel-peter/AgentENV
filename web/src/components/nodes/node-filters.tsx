@@ -17,10 +17,6 @@ export type NodeStatusFilter = DisplayNodeStatus | "all";
 
 const SEARCH_DEBOUNCE_MS = 250;
 
-/**
- * Pushes filter state into the URL so the server component re-renders with a
- * filtered node list (and so filters survive refresh / sharing).
- */
 export function NodeFilters({
   query,
   status,
@@ -37,8 +33,6 @@ export function NodeFilters({
   const [appliedQuery, setAppliedQuery] = useState(query);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Re-sync the box when the URL changes underneath us (back/forward), using
-  // the render-phase adjustment pattern rather than an effect.
   if (query !== appliedQuery) {
     setAppliedQuery(query);
     setDraft(query);

@@ -1,11 +1,3 @@
-/**
- * Connection session endpoints.
- *
- *   GET    — current session status (masked secrets, no network calls)
- *   POST   — validate then save credentials into httpOnly cookies
- *   DELETE — clear the session (logout)
- */
-
 import { NextResponse } from "next/server";
 
 import {
@@ -44,8 +36,6 @@ export async function POST(request: Request) {
 
   const probe = await probeConnection(resolved.credentials);
 
-  // A missing admin token only degrades to `partial`, so saving stays allowed.
-  // A hard `disconnected` result needs an explicit override from the operator.
   if (probe.status === "disconnected" && !resolved.force) {
     const payload: ConnectionApiResponse = {
       session: await getConnectionSessionSummary(),

@@ -47,8 +47,6 @@ export default async function SandboxDetailPage({
     );
   }
 
-  // The custom extension is optional, so a failure here degrades one card
-  // instead of the whole page.
   let extensionParams: CustomExtensionParams | null = null;
   let extensionError: string | undefined;
   try {

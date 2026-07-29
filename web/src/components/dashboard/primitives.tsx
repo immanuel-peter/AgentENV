@@ -53,8 +53,6 @@ export function StatTile({
   return (
     <div
       className={cn(
-        // Bottom-aligned so the readouts share a baseline across the row even
-        // when a longer label wraps to two lines.
         "flex h-full flex-col justify-between rounded-lg bg-muted/30 px-3 py-2.5 ring-1 ring-foreground/5",
         className,
       )}
@@ -75,7 +73,6 @@ export function StatTile({
   );
 }
 
-/** Horizontal usage meter with an optional secondary (allocation) marker. */
 export function UsageBar({
   label,
   used,
@@ -158,7 +155,6 @@ export function EmptyState({ children }: { children: ReactNode }) {
   );
 }
 
-/** Panel-level notice for a failed or unauthorized data source. */
 export function PanelNotice({
   result,
   resourceLabel,

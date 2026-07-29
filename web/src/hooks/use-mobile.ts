@@ -13,9 +13,6 @@ function getSnapshot() {
   return window.matchMedia(MOBILE_QUERY).matches
 }
 
-// The server has no viewport, so it renders the desktop layout and lets the
-// client correct on hydration — same behaviour as the previous `undefined`
-// initial state, minus the cascading render from setting state in an effect.
 function getServerSnapshot() {
   return false
 }

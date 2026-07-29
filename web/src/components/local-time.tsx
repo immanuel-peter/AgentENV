@@ -15,10 +15,6 @@ function parse(value?: string): Date | null {
 
 const noopSubscribe = () => () => {};
 
-/**
- * True only after hydration. Timestamps must render identically on the server
- * and during the first client pass, so locale formatting waits for this.
- */
 function useIsHydrated(): boolean {
   return useSyncExternalStore(
     noopSubscribe,
@@ -27,11 +23,6 @@ function useIsHydrated(): boolean {
   );
 }
 
-/**
- * Renders a timestamp in the viewer's locale. The server-rendered pass shows
- * the raw ISO value, which is also kept in `title`/`dateTime` so the exact
- * value stays reachable.
- */
 export function LocalTime({
   value,
   className,
@@ -40,7 +31,6 @@ export function LocalTime({
 }: {
   value?: string;
   className?: string;
-  /** Omit both for a full date and time; pass one alone to show only that part. */
   dateStyle?: Intl.DateTimeFormatOptions["dateStyle"];
   timeStyle?: Intl.DateTimeFormatOptions["timeStyle"];
 }) {
@@ -51,9 +41,6 @@ export function LocalTime({
     return <span className={cn("text-muted-foreground", className)}>—</span>;
   }
 
-  // Defaults are resolved here rather than as default parameters, so that
-  // passing `dateStyle` alone really does mean "date only" instead of silently
-  // falling back to the default time style.
   const options: Intl.DateTimeFormatOptions =
     dateStyle === undefined && timeStyle === undefined
       ? { dateStyle: "medium", timeStyle: "medium" }
@@ -75,7 +62,6 @@ export function LocalTime({
   );
 }
 
-/** Relative time such as `4m ago` / `in 12m`, refreshed on an interval. */
 export function RelativeTime({
   value,
   className,
@@ -89,7 +75,6 @@ export function RelativeTime({
 
   useEffect(() => {
     const tick = () => setNow(Date.now());
-    // The first tick is deferred so the hydration pass matches the server.
     const initial = setTimeout(tick, 0);
     const timer = setInterval(tick, refreshMs);
     return () => {

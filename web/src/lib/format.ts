@@ -24,8 +24,3 @@ export function formatNumber(value?: number): string {
   }
   return value.toLocaleString("en-US");
 }
-
-// Timestamps are rendered by `@/components/local-time`, which formats in the
-// viewer's locale after hydration and keeps the original ISO value reachable
-// through `title`/`dateTime`. Do not reintroduce a string formatter here:
-// locale formatting during SSR would not match the client pass.

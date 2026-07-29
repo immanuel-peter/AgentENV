@@ -38,10 +38,6 @@ export async function getConnectionSession(): Promise<ConnectionSession | null> 
   };
 }
 
-/**
- * Session cookies: no `maxAge`/`expires`, so the browser drops them when it
- * closes. Credentials must not outlive the browser session (issue #6).
- */
 export function sessionCookieOptions() {
   return {
     httpOnly: true,
