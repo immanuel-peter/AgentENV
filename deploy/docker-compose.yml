@@ -77,10 +77,6 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-  # Control-plane Web UI (Issue #6). Talks to the Gateway over the compose network.
-  # In the browser Settings form, use Gateway URL http://127.0.0.1:8080 (host-mapped).
-  # Server-side fetches from this container should use http://gateway:8080 — configure
-  # that in Settings when running the UI inside Compose, or use host networking locally.
   web:
     build:
       context: ../web
@@ -94,7 +90,6 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3000"
-      # Optional default shown in the Settings UI; cookies still store the live session.
       AENV_DEFAULT_GATEWAY_URL: ${AENV_DEFAULT_GATEWAY_URL:-http://127.0.0.1:8080}
     restart: unless-stopped
 

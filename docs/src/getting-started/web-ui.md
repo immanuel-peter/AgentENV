@@ -1,10 +1,6 @@
 # Web UI (control plane)
 
-The AgentENV Web UI is a Next.js console for operators and developers to manage
-sandboxes, snapshots, templates, and nodes through the **Gateway HTTP API**.
-It does not call the Scheduler gRPC API.
-
-Tracking issue: [kvcache-ai/AgentENV#6](https://github.com/kvcache-ai/AgentENV/issues/6).
+The AgentENV Web UI is a Next.js console for operators and developers to manage sandboxes, snapshots, templates, and nodes through the **Gateway HTTP API**.
 
 ## Prerequisites
 
@@ -25,43 +21,20 @@ Open [http://localhost:3000](http://localhost:3000). In **Settings**, set:
 | Field | Example (Compose Gateway) | Example (single node) |
 |---|---|---|
 | Gateway URL | `http://127.0.0.1:8080` | `http://127.0.0.1:8000` |
-| API key | any non-empty key in local/dev auth modes | same |
+| API key | any non-empty key | same |
 | Admin token | optional | optional |
 
-Credentials are stored in httpOnly session cookies. They are cleared on logout
-and, because the cookies carry no expiry, when the browser session ends.
-
-The Gateway URL is resolved by the Next.js server, not by your browser, so it
-only has to be reachable from wherever `pnpm dev` runs. `AENV_DEFAULT_GATEWAY_URL`
-pre-fills this field.
-
-### Reaching a dev server from another machine
-
-`next dev` blocks its hot-reload WebSocket for unrecognised browser origins, and
-without that connection the page never becomes interactive — forms render but
-ignore input. `localhost` and `127.0.0.1` work out of the box. For anything else
-(a LAN address, a remote dev host, or an SSH/Brev tunnel published on a local
-port other than 3000), list the origin:
-
-```bash
-AENV_WEB_DEV_ORIGINS="10.0.0.5,dev.example.com" pnpm dev
-```
-
-Production builds have no hot-reload channel, so Compose and Kubernetes
-deployments are unaffected.
+Credentials are stored in httpOnly session cookies. They are cleared on logout and, because the cookies carry no expiry, when the browser session ends.
 
 ## Docker Compose
 
-The `web` service is defined in `deploy/docker-compose.yml` and published on
-host port **3000**.
+The `web` service is defined in `deploy/docker-compose.yml` and published on host port **3000**.
 
 ```bash
-# from repo root, with your usual Compose workflow
 docker compose -f deploy/docker-compose.yml up -d --build web
 ```
 
-Then open [http://127.0.0.1:3000](http://127.0.0.1:3000) and point Settings at
-`http://127.0.0.1:8080` (Gateway published on the host).
+Then open [http://127.0.0.1:3000](http://127.0.0.1:3000) and point Settings at `http://127.0.0.1:8080` (Gateway published on the host).
 
 Build context for the image is `web/` using `deploy/docker/Dockerfile.web`.
 
@@ -70,17 +43,8 @@ Build context for the image is `web/` using `deploy/docker/Dockerfile.web`.
 Kustomize base includes `agentenv-web` Deployment + Service (`deploy/k8s/base/`).
 
 ```bash
-# after images are built/loaded into the cluster
-make k8s-apply   # or your usual render/apply flow
+make k8s-apply
 kubectl -n agentenv-system port-forward svc/agentenv-web 3000:3000
 ```
 
-Default in-cluster Gateway URL env: `http://agentenv-gateway:8080`. When using
-the UI from a browser on your laptop via port-forward, set Settings to the
-Gateway URL **reachable from the Next.js server** (in-cluster service name if
-server-side fetches run in-pod) or use host-accessible URLs consistently.
-
-## Scope notes
-
-v1 is control-plane only: no browser terminal, filesystem browser, or in-sandbox
-command execution. Those remain CLI/SDK / future work.
+Default in-cluster Gateway URL env: `http://agentenv-gateway:8080`. When using the UI from a browser on your laptop via port-forward, set Settings to the Gateway URL **reachable from the Next.js server** (in-cluster service name if server-side fetches run in-pod) or use host-accessible URLs consistently.

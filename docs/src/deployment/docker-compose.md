@@ -58,8 +58,6 @@ curl http://127.0.0.1:8080/nodes
 curl http://127.0.0.1:8001/health
 ```
 
-Open the Web UI at [http://127.0.0.1:3000](http://127.0.0.1:3000) and configure Settings with Gateway URL `http://127.0.0.1:8080`. See [Web UI](../getting-started/web-ui.md).
-
 ## Management Commands
 
 ```bash
